@@ -20,21 +20,22 @@ class Game
       guess = gets.chomp.downcase
       if guess.length == 1 && ('a'..'z').include?(guess)
         if @guesses.map { |letter| letter.uncolorize }.include?(guess)
-          puts "You've already guessed that letter. Try again.".colorize(:light_red)
+          puts "You've already guessed that letter. Try again:".colorize(:light_red)
         else
           return guess
         end
       else
-        puts "Invalid input. Try again.".colorize(:light_red)
+        puts "Invalid input. Try again:".colorize(:light_red)
       end
     end
   end
 
   def print_output
-    puts "\n#{@clues}".colorize(:light_blue)
-    puts "Guesses so far: #{@guesses.join(' ')}"
-    puts "Attempts remaining: #{@attempts}"
-    puts "Enter a letter:"
+    puts "\e[H\e[2J"
+    puts @clues.colorize(:light_blue)
+    puts "Guesses so far: ".colorize(:light_yellow) + "#{@guesses.join(' ')}"
+    puts "Attempts remaining: #{@attempts}".colorize(:light_yellow)
+    puts "Enter a letter:".colorize(:light_yellow)
   end
 
   def check_guess(guess)
@@ -56,6 +57,7 @@ class Game
     print_output
     puts 'Congrats! You won!'.colorize(:light_green)
    elsif @attempts.zero?
+    print_output
     puts "Game Over! The word was ".colorize(:light_red) + @secret_word.colorize(:light_green)
    end
   end
