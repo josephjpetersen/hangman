@@ -30,25 +30,45 @@ class Game
     end
   end
 
+  def print_output
+    puts "\n#{@clues}".colorize(:light_blue)
+    puts "Guesses so far: #{@guesses.join(' ')}"
+    puts "Attempts remaining: #{@attempts}"
+    puts "Enter a letter:"
+  end
+
+  def check_guess(guess)
+    if @secret_word.include?(guess)
+      @guesses << guess.colorize(:light_green)
+      @secret_word.chars.each_with_index do |letter, index|
+        if letter == guess
+          @clues[index] = letter
+        end
+      end
+    else
+      @guesses << guess.colorize(:light_red)
+      @attempts -= 1
+    end
+  end
+
+  def check_win
+   if !@clues.include?('_')
+    print_output
+    puts 'Congrats! You won!'.colorize(:light_green)
+   elsif @attempts.zero?
+    puts "Game Over! The word was ".colorize(:light_red) + @secret_word.colorize(:light_green)
+   end
+  end
+
   def play_game
-    until @attempts.zero? || @clues.include?('_') == false
-      puts "\n#{@clues}"
-      puts "Guesses so far: #{@guesses.join(' ')}"
-      puts "Attempts remaining: #{@attempts}"
-      puts "Enter a letter:"
+    until @attempts.zero? || !@clues.include?('_')
+      print_output
+
       guess = get_guess
 
-      if @secret_word.include?(guess)
-        @guesses << guess.colorize(:light_green)
-        @secret_word.chars.each_with_index do |letter, index|
-          if letter == guess
-            @clues[index] = letter
-          end
-        end
-      else
-        @guesses << guess.colorize(:light_red)
-        @attempts -= 1
-      end
+      check_guess(guess)
     end
+
+    check_win
   end
 end
