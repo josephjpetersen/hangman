@@ -11,24 +11,21 @@ class Game
   end
 
   def get_guess
-    begin
-      print_output
-      guess = gets.chomp.downcase
-      return 'save' if guess == 'save'
-      raise "Invalid input. Try again:" unless guess.length == 1 && ('a'..'z').include?(guess)
-      raise "You've already guessed that letter. Try again:" if @guesses.map(&:uncolorize).include?(guess)
+    print_output
+    guess = gets.chomp.downcase
+    return 'save' if guess == 'save'
+    raise unless guess.length == 1 && ('a'..'z').include?(guess)
+    raise if @guesses.map(&:uncolorize).include?(guess)
 
-      check_guess(guess)
-    rescue StandardError => e
-      puts e
-      retry
-    end
+    check_guess(guess)
+  rescue StandardError
+    retry
   end
 
   def print_output
     puts "\e[H\e[2J"
     puts @clues.colorize(:light_blue)
-    puts "Guesses so far: ".colorize(:light_yellow) + "#{@guesses.join(' ')}"
+    puts 'Guesses so far: '.colorize(:light_yellow) + @guesses.join(' ')
     puts "Attempts remaining: #{@attempts}".colorize(:light_yellow)
     puts "Enter a letter (or 'save' to save your game):".colorize(:light_yellow)
   end
@@ -52,15 +49,15 @@ class Game
       true
     elsif @attempts.zero?
       print_output
-      puts "Game Over! The word was ".colorize(:light_red) + @secret_word.colorize(:light_green)
+      puts 'Game Over! The word was '.colorize(:light_red) + @secret_word.colorize(:light_green)
       true
     end
   end
 
   def generate_secret_word
     txt_file = File.read('google-10000-english-no-swears.txt').split
-                   .select{ |word| word.length > 4}
-                   .select{ |word| word.length < 13}
+                   .select { |word| word.length > 4 }
+                   .select { |word| word.length < 13 }
 
     index = rand(0...txt_file.length)
     txt_file[index]
