@@ -1,0 +1,10 @@
+--- !ruby/object:Game
+secret_word: precision
+clues: __e_i_io_
+guesses:
+- "\e[0;91;49ma\e[0m"
+- "\e[0;92;49me\e[0m"
+- "\e[0;92;49mi\e[0m"
+- "\e[0;92;49mo\e[0m"
+- "\e[0;91;49mu\e[0m"
+attempts: 8

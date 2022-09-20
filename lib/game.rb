@@ -1,32 +1,27 @@
 require 'colorize'
 
+# Hangman Game Class
 class Game
-
-  def initialize(txt_file)
-    @secret_word = get_secret_word(txt_file)
+  def initialize
+    @secret_word = generate_secret_word
     @clues = ''
-    @secret_word.length.times { @clues << '_'}
+    @secret_word.length.times { @clues << '_' }
     @guesses = []
     @attempts = 10
   end
 
-  def get_secret_word(txt_file)
-    index = rand(0...txt_file.length)
-    txt_file[index]
-  end
-  
   def get_guess
-    loop do
+    begin
+      print_output
       guess = gets.chomp.downcase
-      if guess.length == 1 && ('a'..'z').include?(guess)
-        if @guesses.map { |letter| letter.uncolorize }.include?(guess)
-          puts "You've already guessed that letter. Try again:".colorize(:light_red)
-        else
-          return guess
-        end
-      else
-        puts "Invalid input. Try again:".colorize(:light_red)
-      end
+      return 'save' if guess == 'save'
+      raise "Invalid input. Try again:" unless guess.length == 1 && ('a'..'z').include?(guess)
+      raise "You've already guessed that letter. Try again:" if @guesses.map(&:uncolorize).include?(guess)
+
+      check_guess(guess)
+    rescue StandardError => e
+      puts e
+      retry
     end
   end
 
@@ -35,16 +30,14 @@ class Game
     puts @clues.colorize(:light_blue)
     puts "Guesses so far: ".colorize(:light_yellow) + "#{@guesses.join(' ')}"
     puts "Attempts remaining: #{@attempts}".colorize(:light_yellow)
-    puts "Enter a letter:".colorize(:light_yellow)
+    puts "Enter a letter (or 'save' to save your game):".colorize(:light_yellow)
   end
 
   def check_guess(guess)
     if @secret_word.include?(guess)
       @guesses << guess.colorize(:light_green)
       @secret_word.chars.each_with_index do |letter, index|
-        if letter == guess
-          @clues[index] = letter
-        end
+        @clues[index] = letter if letter == guess
       end
     else
       @guesses << guess.colorize(:light_red)
@@ -52,25 +45,24 @@ class Game
     end
   end
 
-  def check_win
-   if !@clues.include?('_')
-    print_output
-    puts 'Congrats! You won!'.colorize(:light_green)
-   elsif @attempts.zero?
-    print_output
-    puts "Game Over! The word was ".colorize(:light_red) + @secret_word.colorize(:light_green)
-   end
+  def win?
+    if !@clues.include?('_')
+      print_output
+      puts 'Congrats! You won!'.colorize(:light_green)
+      true
+    elsif @attempts.zero?
+      print_output
+      puts "Game Over! The word was ".colorize(:light_red) + @secret_word.colorize(:light_green)
+      true
+    end
   end
 
-  def play_game
-    until @attempts.zero? || !@clues.include?('_')
-      print_output
+  def generate_secret_word
+    txt_file = File.read('google-10000-english-no-swears.txt').split
+                   .select{ |word| word.length > 4}
+                   .select{ |word| word.length < 13}
 
-      guess = get_guess
-
-      check_guess(guess)
-    end
-
-    check_win
+    index = rand(0...txt_file.length)
+    txt_file[index]
   end
 end
